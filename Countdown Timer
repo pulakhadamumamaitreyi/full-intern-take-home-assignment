@@ -1,0 +1,55 @@
+import { useEffect, useRef, useState } from "react";
+
+export default function CountdownTimer() {
+  const [time, setTime] = useState(() => Number(localStorage.getItem("time")) || 10);
+  const [status, setStatus] = useState(localStorage.getItem("status") || "idle");
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem("time", time);
+    localStorage.setItem("status", status);
+  }, [time, status]);
+
+  const start = () => {
+    if (status === "completed") return;
+    setStatus("running");
+    intervalRef.current = setInterval(() => {
+      setTime(t => {
+        if (t <= 0) {
+          clearInterval(intervalRef.current);
+          setStatus("completed");
+          return 0;
+        }
+        return t - 0.01;
+      });
+    }, 10);
+  };
+
+  const pause = () => {
+    clearInterval(intervalRef.current);
+    setStatus("paused");
+  };
+
+  const resume = () => start();
+
+  const reset = () => {
+    clearInterval(intervalRef.current);
+    setTime(10);
+    setStatus("idle");
+  };
+
+  return (
+    <div>
+      <h2>Countdown Timer</h2>
+      <p>{time.toFixed(2)}</p>
+      <p>Status: {status}</p>
+
+      {status !== "completed" && <button onClick={start}>Start</button>}
+      <button onClick={pause} disabled={status !== "running"}>Pause</button>
+      <button onClick={resume} disabled={status !== "paused"}>Resume</button>
+      <button onClick={reset}>Reset</button>
+
+      {status === "completed" && <h3>Time’s up!</h3>}
+    </div>
+  );
+}
