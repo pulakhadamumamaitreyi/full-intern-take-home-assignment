@@ -1,0 +1,36 @@
+import { useState } from "react";
+
+const names = ["Alice", "Bob", "Charlie", "David", "Daniel", "Danielle"];
+
+export default function SearchList() {
+  const [query, setQuery] = useState("");
+
+  const filtered = names.filter(n =>
+    n.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const highlight = name => {
+    const regex = new RegExp(`(${query})`, "gi");
+    return name.split(regex).map((part, i) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? <b key={i}>{part}</b>
+        : part
+    );
+  };
+
+  return (
+    <div>
+      <h2>Live Search</h2>
+      <input onChange={e => setQuery(e.target.value)} />
+      <p>Matches: {filtered.length}</p>
+
+      {filtered.length === 0 && <p>No matches found</p>}
+
+      <ul>
+        {filtered.map(name => (
+          <li key={name}>{highlight(name)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
